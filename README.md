@@ -18,11 +18,11 @@ As the DenseNet reduces the height of the image by a factor of 50 when we have g
 | Single Scale Attention| 77.5 | 77.7 |
 | Multi Scale Attention | 78.7 | 80 |
 
-![Images.](https://github.com/tejasvi96/Federated-Learning-Library/blob/main/images/outs1.png?raw=True)
+![Images.](https://github.com/tejasvi96/OCR-Scanned-Receipts/blob/main/images/outs1.jpg?raw=True)
 
-![Images.](https://github.com/tejasvi96/Federated-Learning-Library/blob/main/images/outs2.png?raw=True)
+![Images.](https://github.com/tejasvi96/OCR-Scanned-Receipts/blob/main/images/outs2.png?raw=True)
 
-![Images.](https://github.com/tejasvi96/Federated-Learning-Library/blob/main/images/outs4.png?raw=True)
+![Images.](https://github.com/tejasvi96/OCR-Scanned-Receipts/blob/main/images/outs4.png?raw=True)
 
 ## Code
 For the text detection part refer the following [repo](https://github.com/CrazySummerday/ctpn.pytorch) where a pretrained CTPN is available and the same can be finetuned on the receipt images.
