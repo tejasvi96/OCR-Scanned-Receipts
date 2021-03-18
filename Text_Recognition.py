@@ -3,9 +3,18 @@ import os
 import cv2
 import torch
 import numpy as np
+import math
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+from loguru import logger
+logger.add("OCR.log")
+import torch.optim as optim
+import tqdm
 from torch.utils.data import TensorDataset, DataLoader
 train_dir=r"/home/tejasvi/0325updated.task1train(626p)"
 val_dir=r"/home/tejasvi/text.task1_2-test（361p)"
+load_model_file=r'./OCR.pt'
 max_length=31
 row=1000
 column=50
@@ -117,10 +126,7 @@ class Lang:
             self.n_words += 1
         else:
             self.word2count[word] += 1
-eng=Lang("english")
-for i in textdata:
-    for j in i:
-        eng.addSentence(j)
+
 def get_tokenized_data(lang,flat_list):
     targets=[]
     lens=[]
@@ -150,8 +156,13 @@ def get_images_array(images,r,c):
             print("Warning some image are skipped")
     return ims
 train_images,textdata=get_data(train_dir,names)
+eng=Lang("english")
+for i in textdata:
+    for j in i:
+        eng.addSentence(j)
 train_textdata=[item for sublist in textdata for item in sublist]
 tokenized_train_textdata=get_tokenized_data(eng,train_textdata)
+
 arr_tokenized_train_textdata=np.array(tokenized_train_textdata)
 ims=get_images_array(train_images,row,column)
 traindataset=TensorDataset(torch.from_numpy(ims),torch.from_numpy(arr_tokenized_train_textdata))
@@ -163,10 +174,8 @@ arr_tokenized_val_textdata=np.array(tokenized_val_textdata)
 val_ims=get_images_array(val_images,row,column)
 valdataset=TensorDataset(torch.from_numpy(val_ims),torch.from_numpy(arr_tokenized_val_textdata))
 valloader=DataLoader(valdataset,batch_size=8)
-import math
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
+
+
 class BasicBlock(nn.Module):
     def __init__(self, in_planes, out_planes, dropRate=0.0):
         super(BasicBlock, self).__init__()
@@ -242,7 +251,7 @@ class DenseNet3(nn.Module):
             block = BasicBlock
         n = int(n)
         # 1st conv before any dense block
-        in_planes=48
+#         in_planes=48
         kernel_size=3
         stride=1
         self.conv1 = nn.Conv2d(1, in_planes, kernel_size=kernel_size, stride=1,
@@ -293,7 +302,7 @@ class DenseNet3(nn.Module):
 
 
 class Decoder(nn.Module):
-    def __init__(self, vocab_size, hidden_size, embedding_dim, device):
+    def __init__(self, vocab_size,encoder_dim, hidden_size, embedding_dim, device):
         super(Decoder, self).__init__()
         self.hidden_size = hidden_size
         self.device = device
@@ -373,14 +382,19 @@ def calc_val_loss():
             loss = criterion(outputs.resize(outputs.size(0) * outputs.size(1), outputs.size(-1)), y.resize(y.size(0) * y.size(1)))
             val_loss+=loss.item()
     return val_loss/val_items
-from loguru import logger
-logger.add("OCR.log")
-import torch.optim as optim
-import tqdm
+
 trainloader=DataLoader(traindataset,batch_size=bsize)
+vocab_size=eng.n_words
+encoder=DenseNet3(depth=densenet_depth,growth_rate=densenet_growthrate,num_classes=None);
+decoder=Decoder(vocab_size=vocab_size,encoder_dim=encoder_dim, hidden_size=hidden_size,embedding_dim=embedding_size,device=device)
+model=AttenS2S(encoder,decoder,max_length,device)
+
+model.load_state_dict(torch.load(load_model_file,map_location=device))
 optimizer=optim.Adam(model.parameters(),lr=lr)
 criterion=nn.CrossEntropyLoss(ignore_index=pad_token)
-
+val_loss=10
+val_loss_values=[]
+model=model.to(device)
 for j in range(n_epochs):
     sum_loss=0
     n_items=1
