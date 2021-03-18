@@ -394,6 +394,7 @@ optimizer=optim.Adam(model.parameters(),lr=lr)
 criterion=nn.CrossEntropyLoss(ignore_index=pad_token)
 val_loss=10
 val_loss_values=[]
+train_loss_values=[]
 model=model.to(device)
 for j in range(n_epochs):
     sum_loss=0
