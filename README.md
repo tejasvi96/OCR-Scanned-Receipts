@@ -31,6 +31,27 @@ For downloaing the pretrained CTPN refer [this](https://github.com/CrazySummerda
 ## Code
 For the text detection part refer the following [repo](https://github.com/CrazySummerday/ctpn.pytorch) where a pretrained CTPN is available and the same can be finetuned on the receipt images.
 
+Run
+
+``` pip install -r requirements.txt```
+
+to install all the dependencies.
+```
+train_dir=r"/home/tejasvi/0325updated.task1train(626p)"
+val_dir=r"/home/tejasvi/text.task1_2-test（361p)"
+load_model_file=r'./OCR.pt'
+max_length=31
+row=1000
+column=50
+n_epochs=15
+lr=0.001
+bsize=64
+embedding_size=180
+encoder_dim=180
+hidden_size=180
+densenet_depth=32
+densenet_growthrate=24
+```
 For the text recognition part, specify the train_dir and val_dir in Text_Recognition.py. And it can be run using the default parameters.
 A pretrained model 'OCR.pt' is also provided which works with the default configuration.
 
